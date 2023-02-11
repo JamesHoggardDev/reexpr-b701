@@ -30,11 +30,18 @@ const App = () => {
   );
 
   const [products, setProducts] = useState([]);
+  const [bkEndData, setBkEndData] = useState([{}]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
+
     getAsyncProducts().then(result => {
       setProducts(result.data.products);
-    });
+      setIsLoading(false);
+    })
+    .catch(() => setIsError(true));
   }, []);
 
   const handleRemoveProduct = item => {
@@ -50,8 +57,6 @@ const App = () => {
   const searchedProducts = products.filter((product) =>
     product.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const [bkEndData, setBkEndData] = useState([{}]);
 
   const opening = {
     greeting: "Hello",
@@ -83,7 +88,16 @@ const App = () => {
         </InputWithLabel>
         <hr />
         <h2>Top Reviewers: </h2>
-        <List list={searchedProducts} onRemoveItem={handleRemoveProduct} />
+        {isError && <p>Something went wrong ...</p>}
+
+        {isLoading ? (
+          <p>Loading ...</p>
+        ) : (
+          <List
+              list={searchedProducts}
+              onRemoveItem={handleRemoveProduct}
+          />
+        )}
       </div>
 
       {(typeof bkEndData.users === 'undefined') ? (
